@@ -250,11 +250,11 @@ Y.Layout = Y.Base.create("layout", Y.LayoutChild, [Y.WidgetParent], {
 				child.set(dimension, sizes[position] + "px");
 			}
 
-			Y.log('setting ' + oppositeDimension + ' to ' + oppositeContentDimension);
+			Y.log('setting ' + oppositeDimension + ' to ' + oppositeContentDimension, 'debug', 'layout');
 			child.set(oppositeDimension, oppositeContentDimension + "px");
-			Y.log('setting ' + offset + ' to ' + o);
+			Y.log('setting ' + offset + ' to ' + o, 'debug', 'layout');
 			child.get('boundingBox').setStyle(offset, o);
-			Y.log('setting ' + oppositeOffset + ' to ' + oppositeO);
+			Y.log('setting ' + oppositeOffset + ' to ' + oppositeO, 'debug', 'layout');
 			child.get('boundingBox').setStyle(oppositeOffset, oppositeO);
 			o += sizes[position];
 
