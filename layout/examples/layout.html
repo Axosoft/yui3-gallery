@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.3.0pr1/build/cssreset/reset-min.css"> 
+	<link rel="stylesheet" type="text/css" href="https://github.com/Axosoft/yui3-gallery/raw/build/build/gallery-axo-layout/assets/skins/sam/gallery-axo-layout.css"> 
+	<link rel="stylesheet" type="text/css" href="https://github.com/Axosoft/yui3-gallery/raw/build/build/gallery-axo-layout/assets/skins/sam/gallery-axo-layout-skin.css"> 
+
+	<script type="text/javascript" src="http://yui.yahooapis.com/3.3.0pr1/build/yui/yui.js"></script>
+
+	<script type="text/javascript" src="https://github.com/Axosoft/yui3-gallery/raw/build/build/gallery-axo-layout/gallery-axo-layout.js"></script>
+
+    <title>Axosoft Layout Example</title>
+
+	<style>
+
+	.yui3-skin-sam .yui3-layout-vertical > .yui3-layout-content {
+		border:5px solid black;
+		padding:1px;
+	}
+
+	.yui3-skin-sam .yui3-layoutchild {
+		opacity:0.8;
+	}
+
+	#left {
+		background:yellow;
+	}
+
+	#right {
+		background:red
+	}
+
+	#top {
+		background:green;
+	}
+
+	#bottom {
+		background:magenta
+	}
+
+	#center {
+		background:blue
+	}
+
+	#bottom .yui3-layoutchild {
+		background:white;
+		border:1px solid black;
+	}
+
+	#bottom1 {
+		opacity:0.1;
+	}
+
+	#bottom2 {
+		opacity:0.2;
+	}
+
+	#bottom3 {
+		opacity:0.3;
+	}
+
+	#bottom4 {
+		opacity:0.4;
+	}
+
+	</style>
+
+</head>
+
+<body class="yui3-skin-sam">
+
+<script>
+
+YUI().use('resize', 'gallery-axo-layout', function(Y)
+{
+	var layout = new Y.Layout({orientation: 'vertical', sizeToWindow: true });
+	layout.add(new Y.LayoutChild({id:'top', height:100, resize: true }));
+	var centerLayout = new Y.Layout({fluid: true, orientation: 'horizontal' });
+	layout.add(centerLayout);
+	var bottomLayout = new Y.Layout({id:'bottom', height:100, orientation: 'horizontal', resize: true });
+	layout.add(bottomLayout);
+	
+	centerLayout.add(new Y.LayoutChild({id: 'left', width:150, resize: true}));
+	centerLayout.add(new Y.LayoutChild({id: 'center', fluid: true }));
+	centerLayout.add(new Y.LayoutChild({id: 'right', width:150, resize: true}));
+
+	bottomLayout.add(new Y.LayoutChild({id: 'bottom1', width:150, width:100}));
+	bottomLayout.add(new Y.LayoutChild({id: 'bottom2', width:150, fluid:1}));
+	bottomLayout.add(new Y.LayoutChild({id: 'bottom3', width:150, fluid:2}));
+	bottomLayout.add(new Y.LayoutChild({id: 'bottom4', width:150, fluid:3}));
+
+	layout.render();
+});
+
+</script>
+
+
+</body>
+</html>
