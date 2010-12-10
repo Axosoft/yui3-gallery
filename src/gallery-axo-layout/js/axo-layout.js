@@ -48,17 +48,23 @@ var Event = Y.Event,
 Y.LayoutChild = Y.Base.create("layoutChild", Y.Widget, [Y.WidgetChild], {
 	bindUI : function() {
 		// if either resize or parent change, we need to revise resizing
-		this.after('resizeChange', this._resizeOrParentChanged);		
-		this.after('parentChange', this._resizeOrParentChanged);
+		this.after('resizeChange', this._afterResizeOrParentChange);
+		this.after('parentChange', this._afterResizeOrParentChange);
 
-		// call _resizeOrParentChanged to process the current resize / parent values
-		this._resizeOrParentChanged();
+		// call _afterResizeOrParentChange to process the current resize / parent values
+		this._afterResizeOrParentChange();
+
+		// after size changes, we will need to notify the parent to refresh its layout
+		this.after('heightChange', this._afterSizeChange);
+		this.after('widthChange', this._afterSizeChange);
+
+		// TODO: a parent change may require a change of the _batchUpdate property
 	},
 	
 	// override this function from Widget, to work around
 	// bug http://yuilibrary.com/projects/yui3/ticket/2529582
-	_setAttrUI : function(e) {
-		if (e.target === this) {
+	_setAttrUI : function(event) {
+		if (event.target === this) {
 			Y.LayoutChild.superclass._setAttrUI.apply(this, arguments);
 		}
 	},
@@ -68,7 +74,7 @@ Y.LayoutChild = Y.Base.create("layoutChild", Y.Widget, [Y.WidgetChild], {
 	},
 
 	// we can set up resizing once we have both a resize attribute and a parent
-	_resizeOrParentChanged : function() {
+	_afterResizeOrParentChange : function() {
 		var resize = this.get('resize');
 		var parent = this.get('parent');
 
@@ -117,6 +123,31 @@ Y.LayoutChild = Y.Base.create("layoutChild", Y.Widget, [Y.WidgetChild], {
 			this._resize.on('end', function() {
 				this.fire('endResize');
 			}, this);
+		}
+	},
+
+	// setting the batch update to true will allow the size of this widget to be changed,
+	// without refreshing its parent's layout
+	setBatchUpdate : function(value) {
+		this._batchUpdate = Boolean(value);
+	},
+
+	// after a size change, unless we are in batch mode, refresh the layout
+	_afterSizeChange : function(event) {
+		if (event.target === this) {
+			if(!this._batchUpdate) {
+				var parent = this.get('parent');
+				if(parent) {
+					// refresh the parent's layout
+					parent.sizeAndPlaceChildren();
+				}
+				else {
+					// if this is a layout, refresh
+					if(this.sizeAndPlaceChildren) {
+						this.sizeAndPlaceChildren();
+					}
+				}
+			}
 		}
 	},
 
@@ -185,6 +216,17 @@ Y.Layout = Y.Base.create("layout", Y.LayoutChild, [Y.WidgetParent], {
 		this._windowResizeHandle.detach();
 	},
 
+	// override the batch update function to also set batch update values for the children
+	setBatchUpdate : function(value) {
+		// for efficiency, if this layout is already in the desired batch update mode, assume the children are also in that mode
+		if(Boolean(value) !== this._batchUpdate) {
+			Y.Layout.superclass.setBatchUpdate.apply(this, arguments);
+			Y.each(this._items, function(child) {
+				child.setBatchUpdate(value);
+			});
+		}
+	},
+
 	_sizeAndPlace : function() {
 		// size to window if needed
 		this._sizeToWindow();
@@ -209,6 +251,8 @@ Y.Layout = Y.Base.create("layout", Y.LayoutChild, [Y.WidgetParent], {
 			oppositeDimension = this._oppositeDimension,
 			offset = this._offset,
 			oppositeOffset = this._oppositeOffset;
+
+		this.setBatchUpdate(true);
 
 		// get the inner dimensions of the content box
 		// contentDimension this dimension is in the orientation of the layout (e.g., width for a horizontal layout)
@@ -265,6 +309,7 @@ Y.Layout = Y.Base.create("layout", Y.LayoutChild, [Y.WidgetParent], {
 			}
 		});
 
+		this.setBatchUpdate(false);
 	},
 
 	// gets the inner size of the contentBox (how much content fits inside) in the dimension
