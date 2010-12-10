@@ -73,21 +73,40 @@
 
 YUI().use('resize', 'gallery-axo-layout', function(Y)
 {
+	// This creates a vertical layout whose size is tied to the window size
 	var layout = new Y.Layout({orientation: 'vertical', sizeToWindow: true });
+
+	// This adds a child (layout unit) to the layout.  Since it is a vertical layout,
+	// and this is the first child, it will show up on the top.  LayoutChild is
+	// a widget, so it supports configuration arguments such as id and height.
+	// The resize:true parameter will add resizing capability to the child.
 	layout.add(new Y.LayoutChild({id:'top', height:100, resize: true }));
+
+	// This creates another layout and adds it as a child to the root layout,
+	// resulting in a nested layout.  The fluid:true parameter means that the height
+	// of this child will be determined by available space.
 	var centerLayout = new Y.Layout({fluid: true, orientation: 'horizontal' });
 	layout.add(centerLayout);
+
+	// This is another child layout, but with an initial fixed height and resizable.
 	var bottomLayout = new Y.Layout({id:'bottom', height:100, orientation: 'horizontal', resize: true });
 	layout.add(bottomLayout);
 	
+	// We now fill up the center child layout. Two of the children have initial
+	// fixed widths, and are resizable.  The center child will be sized according
+	// to available space.
 	centerLayout.add(new Y.LayoutChild({id: 'left', width:150, resize: true}));
 	centerLayout.add(new Y.LayoutChild({id: 'center', fluid: true }));
 	centerLayout.add(new Y.LayoutChild({id: 'right', width:150, resize: true}));
 
-	bottomLayout.add(new Y.LayoutChild({id: 'bottom1', width:150, width:100}));
-	bottomLayout.add(new Y.LayoutChild({id: 'bottom2', width:150, fluid:1}));
-	bottomLayout.add(new Y.LayoutChild({id: 'bottom3', width:150, fluid:2}));
-	bottomLayout.add(new Y.LayoutChild({id: 'bottom4', width:150, fluid:3}));
+	// The bottom layout will be divided into 4 parts.  The first part will have
+	// a fixed width of 100 pixels.  The remaining three are given a weight using
+	// the fluid argument.  They will fill up the remaining space, and their
+	// weights will result in 1:2:3 proportions in their size.
+	bottomLayout.add(new Y.LayoutChild({id: 'bottom1', width:100}));
+	bottomLayout.add(new Y.LayoutChild({id: 'bottom2', fluid:1}));
+	bottomLayout.add(new Y.LayoutChild({id: 'bottom3', fluid:2}));
+	bottomLayout.add(new Y.LayoutChild({id: 'bottom4', fluid:3}));
 
 	layout.render();
 });
