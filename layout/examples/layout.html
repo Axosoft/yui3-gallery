@@ -71,7 +71,7 @@
 
 <script>
 
-YUI().use('resize', 'gallery-axo-layout', function(Y)
+YUI().use('gallery-axo-layout', 'resize', function(Y)
 {
 	// This creates a vertical layout whose size is tied to the window size
 	var layout = new Y.Layout({orientation: 'vertical', sizeToWindow: true });
@@ -109,6 +109,13 @@ YUI().use('resize', 'gallery-axo-layout', function(Y)
 	bottomLayout.add(new Y.LayoutChild({id: 'bottom4', fluid:3}));
 
 	layout.render();
+
+	// let's make the right layout child clickable, simulating collapse/expand
+	var right = centerLayout.item(2);
+	right.on('click', function() {
+		var width = right.get('width');
+		right.set('width', width == 30 ? 150 : 30);
+	});
 });
 
 </script>
