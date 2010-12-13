@@ -1,3 +1,15 @@
 ﻿.yui3-layoutchild {
 	position:absolute;
 }
+
+.yui3-morphchild > .yui3-widget {
+	position:absolute;
+}
+
+.yui3-layoutchildcollapsablecontent-hidden {
+	display:none;
+}
+
+.yui3-layoutchildcollapsableclip-hidden {
+	display:none;
+}
