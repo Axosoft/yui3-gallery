@@ -1,13 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.3.0pr1/build/cssreset/reset-min.css"> 
-	<link rel="stylesheet" type="text/css" href="https://github.com/Axosoft/yui3-gallery/raw/build/build/gallery-axo-layout/assets/skins/sam/gallery-axo-layout.css"> 
-	<link rel="stylesheet" type="text/css" href="https://github.com/Axosoft/yui3-gallery/raw/build/build/gallery-axo-layout/assets/skins/sam/gallery-axo-layout-skin.css"> 
+	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.3.0pr3/build/cssreset/reset-min.css"> 
+	<link rel="stylesheet" type="text/css" href="http://axosoft.github.com/yui3-gallery/layout/build/assets/skins/sam/gallery-axo-layout.css"> 
+	<link rel="stylesheet" type="text/css" href="http://axosoft.github.com/yui3-gallery/layout/build/assets/skins/sam/gallery-axo-layout-skin.css"> 
 
-	<script type="text/javascript" src="http://yui.yahooapis.com/3.3.0pr1/build/yui/yui.js"></script>
+	<script type="text/javascript" src="http://yui.yahooapis.com/3.3.0pr3/build/yui/yui.js"></script>
 
-	<script type="text/javascript" src="https://github.com/Axosoft/yui3-gallery/raw/build/build/gallery-axo-layout/gallery-axo-layout.js"></script>
+	<script type="text/javascript" src="http://axosoft.github.com/yui3-gallery/layout/build/gallery-axo-layout.js"></script>
 
     <title>Axosoft Layout Example</title>
 
@@ -93,11 +93,11 @@ YUI().use('gallery-axo-layout', 'resize', function(Y)
 	layout.add(bottomLayout);
 	
 	// We now fill up the center child layout. Two of the children have initial
-	// fixed widths, and are resizable.  The center child will be sized according
-	// to available space.
-	centerLayout.add(new Y.LayoutChild({id: 'left', width:150, resize: true}));
+	// fixed widths, and are collapsable and resizable.  The center child will be
+	// sized according to available space.
+	centerLayout.add(new Y.LayoutChildCollapsable({id: 'left', width:150, resize: true}));
 	centerLayout.add(new Y.LayoutChild({id: 'center', fluid: true }));
-	centerLayout.add(new Y.LayoutChild({id: 'right', width:150, resize: true}));
+	centerLayout.add(new Y.LayoutChildCollapsable({id: 'right', width:150, resize: true}));
 
 	// The bottom layout will be divided into 4 parts.  The first part will have
 	// a fixed width of 100 pixels.  The remaining three are given a weight using
@@ -110,12 +110,12 @@ YUI().use('gallery-axo-layout', 'resize', function(Y)
 
 	layout.render();
 
-	// let's make the right layout child clickable, simulating collapse/expand
+	// let's make the left and right layout children toggle on click
+	var left = centerLayout.item(0);
+	left.on('click', left.toggle);
+
 	var right = centerLayout.item(2);
-	right.on('click', function() {
-		var width = right.get('width');
-		right.set('width', width == 30 ? 150 : 30);
-	});
+	right.on('click', right.toggle);
 });
 
 </script>
