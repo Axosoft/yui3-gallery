@@ -90,7 +90,7 @@ Y.LayoutChild = Y.Base.create("layoutChild", Y.Widget, [Y.WidgetChild], {
 
 			// put together the config object for resize
 			var config = {
-				node: this.get('boundingBox'),
+				node: this._getResizableWidget().get('boundingBox'),
 				height: this.get('height'),
 				width: this.get('width'),
 				handles: handle,
@@ -113,10 +113,10 @@ Y.LayoutChild = Y.Base.create("layoutChild", Y.Widget, [Y.WidgetChild], {
 				this.fire('startResize');
 			}, this);
 
-			// on resize, change the size and resize/place parent's children
+			// on resize, change the size - this will trigger resize/place of parent's children
 			this._resize.on('resize', function(event) {
-				this.set(dimension, event.info['offset' + CAPITALIZE_DIMENSION[dimension]]);
-				parent.sizeAndPlaceChildren();
+				Y.log('resizing ' + dimension + ' to ' + event.info['offset' + CAPITALIZE_DIMENSION[dimension]] + ' from ' + this._getResizableWidget().get(dimension), 'layout', 'debug');
+				this._getResizableWidget().set(dimension, event.info['offset' + CAPITALIZE_DIMENSION[dimension]]);
 			}, this);
 
 			// when the resize ends, the LayoutChild fires its own method
@@ -124,6 +124,13 @@ Y.LayoutChild = Y.Base.create("layoutChild", Y.Widget, [Y.WidgetChild], {
 				this.fire('endResize');
 			}, this);
 		}
+	},
+
+	// returns the widget that will have the resize object attached to it.
+	// defaults to this widget, but can be overridden (e.g., the collapsable layout child
+	// makes its expanded view resizabe)
+	_getResizableWidget : function() {
+		return this;
 	},
 
 	// setting the batch update to true will allow the size of this widget to be changed,

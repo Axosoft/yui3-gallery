@@ -44,6 +44,11 @@ Y.LayoutChildCollapsable = Y.Base.create("layoutChildCollapsable", Y.LayoutChild
 		}
 	},
 
+	// we only apply resizing to the expanded view (not the clipped view)
+	_getResizableWidget : function() {
+		return this.item(0);
+	},
+
 	toggle: function() {
 		this.set('collapsed', !this.get('collapsed'));
 	}

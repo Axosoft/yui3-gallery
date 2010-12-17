@@ -30,11 +30,21 @@ WidgetMorph.ATTRS = {
 	// index of the currently shown child (null if none is shown)
 	shownChildIndex : {
 		setter: function(value) {
-			Y.each(this._items, function(item, i) {
+			Y.each(this._items, function(child, i) {
 				var equal = value === i;
-				item.set('visible', equal);
+				child.set('visible', equal);
 				if(equal) {
-					this._applySizeFromChild(item);
+					this._applySizeFromChild(child);
+					if(!this.get('tieSize').height) {
+						child.after('heightChange', this._afterChildSizeChange, this);
+					}
+					if(!this.get('tieSize').width) {
+						child.after('widthChange', this._afterChildSizeChange, this);
+					}
+				}
+				else {
+					child.detach('heightChange', this._afterChildSizeChange, this);
+					child.detach('widthChange', this._afterChildSizeChange, this);
 				}
 			}, this);			
 		}
@@ -68,16 +78,28 @@ WidgetMorph.prototype = {
 	},
 
 	// after a child is removed, we may need to change which child is displayed
-	_afterRemoveChild : function() {
+	_afterRemoveChild : function(event) {
+		var child = event.child;
+
+		child.detach('heightChange', this._afterChildSizeChange, this);
+		child.detach('widthChange', this._afterChildSizeChange, this);
+	},
+
+	_afterChildSizeChange : function(event) {
+		this._applySizeFromChild(event.target);
 	},
 
 	// applies any applicable sizes from the child to the WidgetMorph 
 	_applySizeFromChild : function(child) {
 		if(!this.get('tieSize').height) {
-			this.set('height', child.get('height'));
+			var height = child.get('height');
+			Y.log('Applying height ' + height + ' from child to MorphWidget', 'debug', 'layout');
+			this.set('height', height);
 		}
 		if(!this.get('tieSize').width) {
-			this.set('width', child.get('width'));
+			var width = child.get('width');
+			Y.log('Applying width ' + width + ' from child to MorphWidget', 'debug', 'layout');
+			this.set('width', width);
 		}
 	},
 
@@ -85,10 +107,14 @@ WidgetMorph.prototype = {
 	_applySizeToChild : function(child) {
 		var tieSize = this.get('tieSize');
 		if(tieSize.height) {
-			child.set('height', this.get('height'));
+			var height = this.get('height');
+			Y.log('Applying height ' + height + ' from MorphWidget to child', 'debug', 'layout');
+			child.set('height', height);
 		}
 		if(tieSize.width) {
-			child.set('width', this.get('width'));
+			var width = this.get('width');
+			Y.log('Applying width ' + width + ' from MorphWidget to child', 'debug', 'layout');
+			child.set('width', width);
 		}
 	},
 
