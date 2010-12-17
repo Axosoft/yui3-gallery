@@ -1,4 +1,4 @@
-﻿Y.LayoutChildCollapsableClip = Y.Base.create("layoutChildCollapsableClip", Y.Widget, [Y.WidgetChild], {}, {});
+Y.LayoutChildCollapsableClip = Y.Base.create("layoutChildCollapsableClip", Y.Widget, [Y.WidgetChild], {}, {});
 Y.LayoutChildCollapsableContent = Y.Base.create("layoutChildCollapsableContent", Y.Widget, [Y.WidgetChild], {}, {});
 
 /**
