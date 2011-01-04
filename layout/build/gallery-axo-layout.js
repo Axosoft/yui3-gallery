@@ -588,7 +588,7 @@ var _syncUIImpl = function() {
 	this._getContentWidget().setStdModContent(Y.WidgetStdMod.HEADER, headerContent);
 };
 
-// a regular LayoutChild extended with the standard module format section and generated header
+// a regular LayoutChild extended with the standard module format sections and generated header
 Y.LayoutChildStd = Y.Base.create(LAYOUT_CHILD, Y.LayoutChild, [Y.WidgetStdMod], {
 	syncUI: function() {
 		Y.LayoutChildStd.superclass.syncUI.apply(this, arguments);
@@ -655,4 +655,4 @@ Y.LayoutChildCollapsableStd = Y.Base.create(LAYOUT_CHILD, Y.LayoutChildCollapsab
 
 
 
-}, '@VERSION@' ,{requires:['widget-parent','widget-child','widget-stdmod'], optional:['resize']});
+}, '@VERSION@' ,{requires:['widget-parent','widget-child','widget-stdmod','substitute'], optional:['resize']});
