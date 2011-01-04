@@ -23,8 +23,8 @@ Y.LayoutChildCollapsable = Y.Base.create("layoutChildCollapsable", Y.LayoutChild
 	_tieSize : function() {
 		var parent = this.get('parent');
 		if(parent) {
-			var content = new Y.LayoutChildCollapsableContent(),
-				clip = new Y.LayoutChildCollapsableClip(),
+			var content = this._makeContentWidget(),
+				clip = this._makeClipWidget(),
 				dimension = parent._dimension;
 
 			// set up content and clip widgets
@@ -44,16 +44,27 @@ Y.LayoutChildCollapsable = Y.Base.create("layoutChildCollapsable", Y.LayoutChild
 		}
 	},
 
-	// we only apply resizing to the expanded view (not the clipped view)
-	_getResizableWidget : function() {
+	// the main content of this layout child is the contained content view
+	_getContentWidget : function() {
 		return this.item(0);
+	},
+
+	_getClipWidget : function() {
+		return this.item(1);
+	},
+
+	_makeContentWidget: function() {
+		return new Y.LayoutChildCollapsableContent();
+	},
+
+	_makeClipWidget: function() {
+		return new Y.LayoutChildCollapsableClip();
 	},
 
 	toggle: function() {
 		this.set('collapsed', !this.get('collapsed'));
 	}
-}
-,
+},
 {
 	ATTRS : {
 		// just a conversion to/from shownChildIndex

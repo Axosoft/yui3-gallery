@@ -6,7 +6,8 @@ var getClassName = Y.ClassNameManager.getClassName,
 		collapseButton : getClassName(LAYOUT_CHILD, 'button', 'collapse'),
 		expandButton : getClassName(LAYOUT_CHILD, 'button', 'expand')
 	},
-	BUTTONS_TEMPLATE = Y.substitute('<div class="{cssClass}"></div>', {'cssClass': classNames.buttons}),
+	CLASSED_DIV = '<div class="{cssClass}"></div>',
+	BUTTONS_TEMPLATE = Y.substitute(CLASSED_DIV, {'cssClass': classNames.buttons}),
 	CONTENT_HEADER_TEMPLATE = '{label}' + BUTTONS_TEMPLATE;
 
 // syncUI code shared between LayoutChildStd and LayoutChildCollapsableStd
@@ -16,7 +17,7 @@ var _syncUIImpl = function() {
 	this._getContentWidget().setStdModContent(Y.WidgetStdMod.HEADER, headerContent);
 };
 
-// a regular LayoutChild extended with the standard module format section and generated header
+// a regular LayoutChild extended with the standard module format sections and generated header
 Y.LayoutChildStd = Y.Base.create(LAYOUT_CHILD, Y.LayoutChild, [Y.WidgetStdMod], {
 	syncUI: function() {
 		Y.LayoutChildStd.superclass.syncUI.apply(this, arguments);
@@ -42,14 +43,14 @@ Y.LayoutChildCollapsableStd = Y.Base.create(LAYOUT_CHILD, Y.LayoutChildCollapsab
 	
 	syncUI: function() {
 		Y.LayoutChildCollapsableStd.superclass.syncUI.apply(this, arguments);
+		// compose the content widget header
 		_syncUIImpl.apply(this, arguments);
-
 		this._addButton(this._getContentWidget(), Y.LayoutChildCollapsableStd.COLLAPSE_ICON_TEMPLATE);
 
+		// compose the clip widget header
 		var headerContent = Y.substitute(Y.LayoutChildCollapsableStd.CLIP_HEADER_TEMPLATE, {label: this.get('label')});
 		var clipWidget = this._getClipWidget();
 		clipWidget.setStdModContent(Y.WidgetStdMod.HEADER, headerContent);
-		
 		this._addButton(clipWidget, Y.LayoutChildCollapsableStd.EXPAND_ICON_TEMPLATE);
 	},
 
@@ -61,6 +62,7 @@ Y.LayoutChildCollapsableStd = Y.Base.create(LAYOUT_CHILD, Y.LayoutChildCollapsab
 		return new Y.LayoutChildCollapsableClipStd();
 	},
 
+	// adds a toggle button to the widget
 	_addButton: function(widget, buttonTemplate) {
 		var buttons = widget.get('boundingBox').one('.'+classNames.buttons);
 		var button = Y.Node.create(buttonTemplate);
@@ -75,7 +77,7 @@ Y.LayoutChildCollapsableStd = Y.Base.create(LAYOUT_CHILD, Y.LayoutChildCollapsab
 		}
 	},
 
-	CLIP_HEADER_TEMPLATE: Y.substitute('<div class="{cssClass}"></div>', {cssClass: classNames.buttons}),
-	COLLAPSE_ICON_TEMPLATE: Y.substitute('<div class="{cssClass}"></div>', {cssClass: classNames.collapseButton}),
-	EXPAND_ICON_TEMPLATE: Y.substitute('<div class="{cssClass}"></div>', {cssClass: classNames.expandButton})
+	CLIP_HEADER_TEMPLATE: Y.substitute(CLASSED_DIV, {cssClass: classNames.buttons}),
+	COLLAPSE_ICON_TEMPLATE: Y.substitute(CLASSED_DIV, {cssClass: classNames.collapseButton}),
+	EXPAND_ICON_TEMPLATE: Y.substitute(CLASSED_DIV, {cssClass: classNames.expandButton})
 });
