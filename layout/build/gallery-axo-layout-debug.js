@@ -92,7 +92,7 @@ Y.LayoutChild = Y.Base.create("layoutChild", Y.Widget, [Y.WidgetChild], {
 
 			// put together the config object for resize
 			var config = {
-				node: this._getResizableWidget().get('boundingBox'),
+				node: this._getContentWidget().get('boundingBox'),
 				height: this.get('height'),
 				width: this.get('width'),
 				handles: handle,
@@ -117,8 +117,8 @@ Y.LayoutChild = Y.Base.create("layoutChild", Y.Widget, [Y.WidgetChild], {
 
 			// on resize, change the size - this will trigger resize/place of parent's children
 			this._resize.on('resize', function(event) {
-				Y.log('resizing ' + dimension + ' to ' + event.info['offset' + CAPITALIZE_DIMENSION[dimension]] + ' from ' + this._getResizableWidget().get(dimension), 'layout', 'debug');
-				this._getResizableWidget().set(dimension, event.info['offset' + CAPITALIZE_DIMENSION[dimension]]);
+				Y.log('resizing ' + dimension + ' to ' + event.info['offset' + CAPITALIZE_DIMENSION[dimension]] + ' from ' + this._getContentWidget().get(dimension), 'layout', 'debug');
+				this._getContentWidget().set(dimension, event.info['offset' + CAPITALIZE_DIMENSION[dimension]]);
 			}, this);
 
 			// when the resize ends, the LayoutChild fires its own method
@@ -128,10 +128,11 @@ Y.LayoutChild = Y.Base.create("layoutChild", Y.Widget, [Y.WidgetChild], {
 		}
 	},
 
-	// returns the widget that will have the resize object attached to it.
+	// returns the widget that contains the main content of the layout node.
+	// Among other things, this widget will have the resize object attached to it.
 	// defaults to this widget, but can be overridden (e.g., the collapsable layout child
 	// makes its expanded view resizabe)
-	_getResizableWidget : function() {
+	_getContentWidget : function() {
 		return this;
 	},
 
@@ -528,8 +529,8 @@ Y.LayoutChildCollapsable = Y.Base.create("layoutChildCollapsable", Y.LayoutChild
 	_tieSize : function() {
 		var parent = this.get('parent');
 		if(parent) {
-			var content = new Y.LayoutChildCollapsableContent(),
-				clip = new Y.LayoutChildCollapsableClip(),
+			var content = this._makeContentWidget(),
+				clip = this._makeClipWidget(),
 				dimension = parent._dimension;
 
 			// set up content and clip widgets
@@ -549,16 +550,27 @@ Y.LayoutChildCollapsable = Y.Base.create("layoutChildCollapsable", Y.LayoutChild
 		}
 	},
 
-	// we only apply resizing to the expanded view (not the clipped view)
-	_getResizableWidget : function() {
+	// the main content of this layout child is the contained content view
+	_getContentWidget : function() {
 		return this.item(0);
+	},
+
+	_getClipWidget : function() {
+		return this.item(1);
+	},
+
+	_makeContentWidget: function() {
+		return new Y.LayoutChildCollapsableContent();
+	},
+
+	_makeClipWidget: function() {
+		return new Y.LayoutChildCollapsableClip();
 	},
 
 	toggle: function() {
 		this.set('collapsed', !this.get('collapsed'));
 	}
-}
-,
+},
 {
 	ATTRS : {
 		// just a conversion to/from shownChildIndex
@@ -571,6 +583,90 @@ Y.LayoutChildCollapsable = Y.Base.create("layoutChildCollapsable", Y.LayoutChild
 }
 );
 
+// various CSS class names and HTML templates
+var getClassName = Y.ClassNameManager.getClassName,
+	LAYOUT_CHILD = 'layoutChild',
+	classNames = {
+		buttons : getClassName(LAYOUT_CHILD, 'buttons'),
+		collapseButton : getClassName(LAYOUT_CHILD, 'button', 'collapse'),
+		expandButton : getClassName(LAYOUT_CHILD, 'button', 'expand')
+	},
+	CLASSED_DIV = '<div class="{cssClass}"></div>',
+	BUTTONS_TEMPLATE = Y.substitute(CLASSED_DIV, {'cssClass': classNames.buttons}),
+	CONTENT_HEADER_TEMPLATE = '{label}' + BUTTONS_TEMPLATE;
+
+// syncUI code shared between LayoutChildStd and LayoutChildCollapsableStd
+var _syncUIImpl = function() {
+	// compose the header
+	var headerContent = Y.substitute(Y.LayoutChildStd.CONTENT_HEADER_TEMPLATE, {label: this.get('label')});
+	this._getContentWidget().setStdModContent(Y.WidgetStdMod.HEADER, headerContent);
+};
+
+// a regular LayoutChild extended with the standard module format section and generated header
+Y.LayoutChildStd = Y.Base.create(LAYOUT_CHILD, Y.LayoutChild, [Y.WidgetStdMod], {
+	syncUI: function() {
+		Y.LayoutChildStd.superclass.syncUI.apply(this, arguments);
+		_syncUIImpl.apply(this, arguments);
+	}
+},
+{
+	ATTRS: {
+		label: {
+		}
+	},
+
+	BUTTONS_TEMPLATE: BUTTONS_TEMPLATE,
+	CONTENT_HEADER_TEMPLATE: CONTENT_HEADER_TEMPLATE
+});
+
+// for collapsable layout children, we need to extend both the clip and the content with WidgetStdMod
+Y.LayoutChildCollapsableContentStd = Y.Base.create("layoutChildCollapsableContent", Y.LayoutChildCollapsableContent, [Y.WidgetStdMod], {}, {});
+Y.LayoutChildCollapsableClipStd = Y.Base.create("layoutChildCollapsableClip", Y.LayoutChildCollapsableClip, [Y.WidgetStdMod], {}, {});
+
+// LayoutChildCollapsable extended with the standard module format sections and generated header
+Y.LayoutChildCollapsableStd = Y.Base.create(LAYOUT_CHILD, Y.LayoutChildCollapsable, [Y.WidgetStdMod], {
+	
+	syncUI: function() {
+		Y.LayoutChildCollapsableStd.superclass.syncUI.apply(this, arguments);
+		// compose the content widget header
+		_syncUIImpl.apply(this, arguments);
+		this._addButton(this._getContentWidget(), Y.LayoutChildCollapsableStd.COLLAPSE_ICON_TEMPLATE);
+
+		// compose the clip widget header
+		var headerContent = Y.substitute(Y.LayoutChildCollapsableStd.CLIP_HEADER_TEMPLATE, {label: this.get('label')});
+		var clipWidget = this._getClipWidget();
+		clipWidget.setStdModContent(Y.WidgetStdMod.HEADER, headerContent);
+		this._addButton(clipWidget, Y.LayoutChildCollapsableStd.EXPAND_ICON_TEMPLATE);
+	},
+
+	_makeContentWidget: function() {
+		return new Y.LayoutChildCollapsableContentStd();
+	},
+
+	_makeClipWidget: function() {
+		return new Y.LayoutChildCollapsableClipStd();
+	},
+
+	// adds a toggle button to the widget
+	_addButton: function(widget, buttonTemplate) {
+		var buttons = widget.get('boundingBox').one('.'+classNames.buttons);
+		var button = Y.Node.create(buttonTemplate);
+		button.on('click', this.toggle, this);
+		buttons.append(button);		
+	}
+
+},
+{
+	ATTRS: {
+		label: {
+		}
+	},
+
+	CLIP_HEADER_TEMPLATE: Y.substitute(CLASSED_DIV, {cssClass: classNames.buttons}),
+	COLLAPSE_ICON_TEMPLATE: Y.substitute(CLASSED_DIV, {cssClass: classNames.collapseButton}),
+	EXPAND_ICON_TEMPLATE: Y.substitute(CLASSED_DIV, {cssClass: classNames.expandButton})
+});
 
 
-}, '@VERSION@' ,{requires:['widget-parent','widget-child'], optional:['resize']});
+
+}, '@VERSION@' ,{requires:['widget-parent','widget-child','widget-stdmod'], optional:['resize']});

@@ -63,6 +63,39 @@
 		opacity:0.4;
 	}
 
+		.yui3-layoutchild-content .yui3-widget-hd {
+		background: white;
+		color: black;
+		border:solid black 1px;
+		padding-left:5px;
+		height:23px;
+	}
+
+	.yui3-layoutChild-button-collapse, .yui3-layoutChild-button-expand {
+		width: 17px;
+		height: 13px;
+		right:5px;
+		top:5px;
+		position: absolute;
+		background: transparent url(http://developer.yahoo.com/yui/build/layout/assets/skins/sam/layout_sprite.png) no-repeat;
+	}
+
+	#left .yui3-layoutChild-button-collapse {
+		background-position: -20px -160px;
+	} 
+
+	#left .yui3-layoutChild-button-expand {
+		background-position: -20px -140px;
+	} 
+
+	#right .yui3-layoutChild-button-collapse {
+		background-position: -20px -200px;
+	} 
+
+	#right .yui3-layoutChild-button-expand {
+		background-position: -20px -120px;
+	} 
+
 	</style>
 
 </head>
@@ -95,9 +128,11 @@ YUI().use('gallery-axo-layout', 'resize', function(Y)
 	// We now fill up the center child layout. Two of the children have initial
 	// fixed widths, and are collapsable and resizable.  The center child will be
 	// sized according to available space.
-	centerLayout.add(new Y.LayoutChildCollapsable({id: 'left', width:150, resize: true}));
-	centerLayout.add(new Y.LayoutChild({id: 'center', fluid: true }));
-	centerLayout.add(new Y.LayoutChildCollapsable({id: 'right', width:150, resize: true}));
+	// We will also give the children standard module format sections and auto-generated headers,
+	// by using the *Std layout children
+	centerLayout.add(new Y.LayoutChildCollapsableStd({id: 'left', width:150, resize: true, label:'Left'}));
+	centerLayout.add(new Y.LayoutChildStd({id: 'center', fluid: true, label:'Center' }));
+	centerLayout.add(new Y.LayoutChildCollapsableStd({id: 'right', width:150, resize: true, label:'Right'}));
 
 	// The bottom layout will be divided into 4 parts.  The first part will have
 	// a fixed width of 100 pixels.  The remaining three are given a weight using
@@ -109,13 +144,6 @@ YUI().use('gallery-axo-layout', 'resize', function(Y)
 	bottomLayout.add(new Y.LayoutChild({id: 'bottom4', fluid:3}));
 
 	layout.render();
-
-	// let's make the left and right layout children toggle on click
-	var left = centerLayout.item(0);
-	left.on('click', left.toggle);
-
-	var right = centerLayout.item(2);
-	right.on('click', right.toggle);
 });
 
 </script>
