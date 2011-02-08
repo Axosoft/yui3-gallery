@@ -247,8 +247,17 @@ Y.Layout = Y.Base.create("layout", Y.LayoutChild, [Y.WidgetParent], {
 		if(this.get('sizeToWindow')) {
 			var bb = this.get('boundingBox');
 
-			this.set('height', bb.get('winHeight'));
-			this.set('width', bb.get('winWidth'));
+			var height = bb.get('winHeight');
+			var width = bb.get('winWidth');
+			var sizeToWindow = this.get('sizeToWindow');
+			if(Y.Lang.isFunction(sizeToWindow)) {
+				var widthHeight = sizeToWindow(width, height);
+				width = widthHeight[0];
+				height = widthHeight[1];
+			}
+
+			this.set('height', height);
+			this.set('width', width);
 		}
 	},
 
@@ -357,7 +366,7 @@ Y.Layout = Y.Base.create("layout", Y.LayoutChild, [Y.WidgetParent], {
 		// whether the size of this widget is tied to the window size
 		sizeToWindow : {
 			value:false,
-			validator:Lang.isBoolean,
+			validator: function(value) {return Lang.isBoolean(value) || Lang.isFunction(value);},
 			writeOnce: 'initOnly'
 		}
 	}
@@ -522,7 +531,7 @@ Y.LayoutChildCollapsable = Y.Base.create("layoutChildCollapsable", Y.LayoutChild
 			// set up content and clip widgets
 			// the initial dimension of the layout child determines the dimension of the content
 			content.set(dimension, this.get(dimension));
-			clip.set(dimension, this.get('collapsedWidth')); // for now
+			clip.set(dimension, this.get('collapsedSize')); // for now
 			this.add(content);
 			this.add(clip);
 
@@ -565,7 +574,7 @@ Y.LayoutChildCollapsable = Y.Base.create("layoutChildCollapsable", Y.LayoutChild
 			getter: function() { return Boolean(this.get('shownChildIndex')); }
 		
 		},
-		collapsedWidth: {
+		collapsedSize: {
 			value: 50
 		}
 	}
