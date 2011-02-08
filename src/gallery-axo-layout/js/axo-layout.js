@@ -247,8 +247,17 @@ Y.Layout = Y.Base.create("layout", Y.LayoutChild, [Y.WidgetParent], {
 		if(this.get('sizeToWindow')) {
 			var bb = this.get('boundingBox');
 
-			this.set('height', bb.get('winHeight'));
-			this.set('width', bb.get('winWidth'));
+			var height = bb.get('winHeight');
+			var width = bb.get('winWidth');
+			var sizeToWindow = this.get('sizeToWindow');
+			if(Y.Lang.isFunction(sizeToWindow)) {
+				var widthHeight = sizeToWindow(width, height);
+				width = widthHeight[0];
+				height = widthHeight[1];
+			}
+
+			this.set('height', height);
+			this.set('width', width);
 		}
 	},
 
@@ -365,7 +374,7 @@ Y.Layout = Y.Base.create("layout", Y.LayoutChild, [Y.WidgetParent], {
 		// whether the size of this widget is tied to the window size
 		sizeToWindow : {
 			value:false,
-			validator:Lang.isBoolean,
+			validator: function(value) {return Lang.isBoolean(value) || Lang.isFunction(value);},
 			writeOnce: 'initOnly'
 		}
 	}
