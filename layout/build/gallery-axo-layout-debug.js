@@ -536,7 +536,7 @@ Y.LayoutChildCollapsable = Y.Base.create("layoutChildCollapsable", Y.LayoutChild
 			// set up content and clip widgets
 			// the initial dimension of the layout child determines the dimension of the content
 			content.set(dimension, this.get(dimension));
-			clip.set(dimension, 50); // for now
+			clip.set(dimension, this.get('collapsedWidth')); // for now
 			this.add(content);
 			this.add(clip);
 
@@ -578,6 +578,9 @@ Y.LayoutChildCollapsable = Y.Base.create("layoutChildCollapsable", Y.LayoutChild
 			setter: function(value) { this.set('shownChildIndex', Number(value)); },
 			getter: function() { return Boolean(this.get('shownChildIndex')); }
 		
+		},
+		collapsedWidth: {
+			value: 50
 		}
 	}
 }
